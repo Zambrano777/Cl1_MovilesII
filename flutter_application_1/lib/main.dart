@@ -13,18 +13,28 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Office Food',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Office Food'),
     );
   }
 }
 
+// ignore: must_be_immutable
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
+
+  String nombre = "";
+  String pedido = "";
+  double precio = 0;
+  double cantidad = 0;
+  bool isSwichet = true;
+  String mensaje = "";
+  double total = 0;
+  double descuento = 0;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -35,6 +45,34 @@ class _MyHomePageState extends State<MyHomePage> {
   final controlador2 = TextEditingController();
   final controlador3 = TextEditingController();
   final controlador4 = TextEditingController();
+
+  void calcular() {
+    setState(() { 
+      widget.precio = double.parse(controlador3.text);
+      widget.cantidad = double.parse(controlador4.text);
+
+      if(widget.precio > 500){
+          widget.total = (widget.cantidad * widget.precio);
+          widget.total = widget.total - (widget.total * 0.05);
+          widget.descuento = (widget.total * 0.05);
+          widget.mensaje = "El total a pagar es: " + widget.total.toString() + " y Descuento es: " + widget.descuento.toString();
+      }else if(widget.isSwichet){
+          widget.total = (widget.cantidad * widget.precio);
+          widget.total = widget.total + 20;
+          widget.mensaje = "El total a pagar es: " + widget.total.toString();
+      }else if (widget.isSwichet && widget.precio > 500) {
+        widget.total = (widget.cantidad * widget.precio);
+        widget.total = widget.total + 20;
+        widget.total = widget.total - (widget.total * 0.05);
+        widget.descuento = (widget.total * 0.05);
+        widget.mensaje = "El total a pagar es: " + widget.total.toString() + " y Descuento es: " + widget.descuento.toString();
+      }else{
+        widget.total = (widget.cantidad * widget.precio);
+        widget.mensaje = "El total a pagar es: " + widget.total.toString();
+      }
+    });
+  }
+
   void _showAlert(String value) {
     AlertDialog dialog = new AlertDialog(
       content: new Text(value),
@@ -62,21 +100,38 @@ class _MyHomePageState extends State<MyHomePage> {
                 TextField(
                     controller: controlador1,
                     decoration: const InputDecoration(
-                        hintText: "Ingresar Nombres", labelText: "Nombre")),
+                        hintText: "Ingresar Nombres y Apellidos",
+                        labelText: "Nombres y Apellidos",
+                        )),
                 TextField(
                     controller: controlador2,
                     decoration: const InputDecoration(
-                        hintText: "Ingresar Apellidos",
-                        labelText: "Apellidos")),
+                        hintText: "Ingresar Pedido",
+                        labelText: "Pedido",
+                       )),
                 TextField(
                     controller: controlador3,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(
-                        hintText: "Ingresar Edad", labelText: "Edad")),
+                        hintText: "Ingresar Precio",
+                        labelText: "Precio",
+                      )),
                 TextField(
                     controller: controlador4,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(
-                        hintText: "Ingresar Estado Civil",
-                        labelText: "Estado Civil")),
+                        hintText: "Ingresar Cantidad",
+                        labelText: "Cantidad",
+                       )),
+                Switch(value: widget.isSwichet, onChanged: (bool s){
+                  setState(() {
+                    widget.isSwichet = s;
+                    
+                  });
+                }),
+
                 const Text("Registrar"),
                 // ignore: deprecated_member_use
                 RaisedButton(
@@ -85,11 +140,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(fontSize: 18, fontFamily: "rbold"),
                   ),
                   onPressed: () {
-                     controlador1.clear();
-                     controlador2.clear();
-                     controlador3.clear();
-                     controlador4.clear();
-                    _showAlert("[Registrado]");
+                    calcular();
+                    _showAlert(widget.mensaje);
+                    controlador1.clear();
+                    controlador2.clear();
+                    controlador3.clear();
+                    controlador4.clear();
                   },
                 )
               ],
